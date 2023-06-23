@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html class='theme-container'>
+
+<head>
+    <meta charset='utf-8'>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta name="referrer" content="no-referrer">
+    
+
+    <title>(Hu)go Template Primer</title>
+
+    <link rel="canonical" href="http://example.org/">
+
+    
+    <link rel='stylesheet' type='text/css' href='/css/common.min.2e0fcb1a7000d167fb8edc8795fd7fa375f12491a92c7e9c4e7cbaabf45d4c90.css'/>
+    
+    <link rel='stylesheet' media='screen and (min-width: 1201px)' type='text/css'
+          href='/css/normal.min.c46acb505230270efd7c6e141090cb0d8929be27c04e426816632c376c4c49ea.css'/>
+    
+    <link rel='stylesheet' media='screen and (max-width: 1200px)' type='text/css'
+          href='/css/small.min.cff497b4416dfb7de7e24706a8a25fc3efb8dfd2f8627449c114a139a67da2a7.css'/>
+
+    
+    <link rel='stylesheet' type='text/css' href='/css/androidstudio.min.min.c0869a17349d3f1bdd078763e8c11ec9808c9f38239bb254720577662fba87bf.css'/>
+    
+    <script src="/js/highlight.min.min.146ebb8a9aa7d1d8a58da238221fde0d04be9cd372ee00836d6637ea773b7286.js"></script>
+
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+</head>
+<script>
+    hljs.highlightAll();
+</script>
+<body>
+
+<div class="top">
+    <a href="/">
+        <img src="/img/logo.png"/>
+    </a>
+    <nav>
+        
+        <a href="/post/">
+            Blog
+        </a>
+        
+        <a href="/note/">
+            Note
+        </a>
+        
+        <a href="/projects/">
+            Projects
+        </a>
+        
+        <a href="/about">
+            About
+        </a>
+        
+        <a href="/404.html">
+            404
+        </a>
+        
+    </nav>
+</div>
+
+<div id="center" class='center' >
+    
+<header class="center_head">
+    <h1>
+    (Hu)go Template Primer
+</h1>
+<div style="text-align: center;opacity: 0.5;margin-top: 0.5em;">
+    2014.04.02 00:00
+</div>
+</header>
+
+    
+<div class="center_main">
+    <a href="../" class="center_main_contents_left">
+        <h1>Posts</h1>
+    </a>
+    <style>
+    .content_post h2::before {
+        content: "※ ";
+    }
+
+    .content_post h3::before {
+        content: "✧ ";
+    }
+</style>
+<article class="content_post heti heti--ancient">
+    <p>Hugo uses the excellent <a href="http://golang.org/">go</a> <a href="http://golang.org/pkg/html/template/">html/template</a> library for
+its template engine. It is an extremely lightweight engine that provides a very
+small amount of logic. In our experience that it is just the right amount of
+logic to be able to create a good static website. If you have used other
+template systems from different languages or frameworks you will find a lot of
+similarities in go templates.</p>
+<p>This document is a brief primer on using go templates. The <a href="http://golang.org/pkg/html/template/">go docs</a>
+provide more details.</p>
+<h2 id="introduction-to-go-templates">Introduction to Go Templates</h2>
+<p>Go templates provide an extremely simple template language. It adheres to the
+belief that only the most basic of logic belongs in the template or view layer.
+One consequence of this simplicity is that go templates parse very quickly.</p>
+<p>A unique characteristic of go templates is they are content aware. Variables and
+content will be sanitized depending on the context of where they are used. More
+details can be found in the <a href="http://golang.org/pkg/html/template/">go docs</a>.</p>
+<h2 id="basic-syntax">Basic Syntax</h2>
+<p>Go lang templates are html files with the addition of variables and
+functions.</p>
+<p><strong>Go variables and functions are accessible within {{ }}</strong></p>
+<p>Accessing a predefined variable &ldquo;foo&rdquo;:</p>
+<pre><code>{{ foo }}
+</code></pre>
+<p><strong>Parameters are separated using spaces</strong></p>
+<p>Calling the add function with input of 1, 2:</p>
+<pre><code>{{ add 1 2 }}
+</code></pre>
+<p><strong>Methods and fields are accessed via dot notation</strong></p>
+<p>Accessing the Page Parameter &ldquo;bar&rdquo;</p>
+<pre><code>{{ .Params.bar }}
+</code></pre>
+<p><strong>Parentheses can be used to group items together</strong></p>
+<pre><code>{{ if or (isset .Params &quot;alt&quot;) (isset .Params &quot;caption&quot;) }} Caption {{ end }}
+</code></pre>
+<h2 id="variables">Variables</h2>
+<p>Each go template has a struct (object) made available to it. In hugo each
+template is passed either a page or a node struct depending on which type of
+page you are rendering. More details are available on the
+<a href="/layout/variables">variables</a> page.</p>
+<p>A variable is accessed by referencing the variable name.</p>
+<pre><code>&lt;title&gt;{{ .Title }}&lt;/title&gt;
+</code></pre>
+<p>Variables can also be defined and referenced.</p>
+<pre><code>{{ $address := &quot;123 Main St.&quot;}}
+{{ $address }}
+</code></pre>
+<h2 id="functions">Functions</h2>
+<p>Go template ship with a few functions which provide basic functionality. The go
+template system also provides a mechanism for applications to extend the
+available functions with their own. <a href="/layout/functions">Hugo template
+functions</a> provide some additional functionality we believe
+are useful for building websites. Functions are called by using their name
+followed by the required parameters separated by spaces. Template
+functions cannot be added without recompiling hugo.</p>
+<p><strong>Example:</strong></p>
+<pre><code>{{ add 1 2 }}
+</code></pre>
+<h2 id="includes">Includes</h2>
+<p>When including another template you will pass to it the data it will be
+able to access. To pass along the current context please remember to
+include a trailing dot. The templates location will always be starting at
+the /layout/ directory within Hugo.</p>
+<p><strong>Example:</strong></p>
+<pre><code>{{ template &quot;chrome/header.html&quot; . }}
+</code></pre>
+<h2 id="logic">Logic</h2>
+<p>Go templates provide the most basic iteration and conditional logic.</p>
+<h3 id="iteration">Iteration</h3>
+<p>Just like in go, the go templates make heavy use of range to iterate over
+a map, array or slice. The following are different examples of how to use
+range.</p>
+<p><strong>Example 1: Using Context</strong></p>
+<pre><code>{{ range array }} 
+    {{ . }}
+{{ end }}
+</code></pre>
+<p><strong>Example 2: Declaring value variable name</strong></p>
+<pre><code>{{range $element := array}} 
+    {{ $element }} 
+{{ end }}
+</code></pre>
+<p><strong>Example 2: Declaring key and value variable name</strong></p>
+<pre><code>{{range $index, $element := array}}
+    {{ $index }} 
+    {{ $element }} 
+{{ end }}
+</code></pre>
+<h3 id="conditionals">Conditionals</h3>
+<p>If, else, with, or, &amp; and provide the framework for handling conditional
+logic in Go Templates. Like range, each statement is closed with <code>end</code>.</p>
+<p>Go Templates treat the following values as false:</p>
+<ul>
+<li>false</li>
+<li>0</li>
+<li>any array, slice, map, or string of length zero</li>
+</ul>
+<p><strong>Example 1: If</strong></p>
+<pre><code>{{ if isset .Params &quot;title&quot; }}&lt;h4&gt;{{ index .Params &quot;title&quot; }}&lt;/h4&gt;{{ end }}
+</code></pre>
+<p><strong>Example 2: If -&gt; Else</strong></p>
+<pre><code>{{ if isset .Params &quot;alt&quot; }} 
+    {{ index .Params &quot;alt&quot; }}
+{{else}}
+    {{ index .Params &quot;caption&quot; }}
+{{ end }}
+</code></pre>
+<p><strong>Example 3: And &amp; Or</strong></p>
+<pre><code>{{ if and (or (isset .Params &quot;title&quot;) (isset .Params &quot;caption&quot;)) (isset .Params &quot;attr&quot;)}}
+</code></pre>
+<p><strong>Example 4: With</strong></p>
+<p>An alternative way of writing &ldquo;if&rdquo; and then referencing the same value
+is to use &ldquo;with&rdquo; instead. With rebinds the context <code>.</code> within its scope,
+and skips the block if the variable is absent.</p>
+<p>The first example above could be simplified as:</p>
+<pre><code>{{ with .Params.title }}&lt;h4&gt;{{ . }}&lt;/h4&gt;{{ end }}
+</code></pre>
+<p><strong>Example 5: If -&gt; Else If</strong></p>
+<pre><code>{{ if isset .Params &quot;alt&quot; }} 
+    {{ index .Params &quot;alt&quot; }}
+{{ else if isset .Params &quot;caption&quot; }}
+    {{ index .Params &quot;caption&quot; }}
+{{ end }}
+</code></pre>
+<h2 id="pipes">Pipes</h2>
+<p>One of the most powerful components of go templates is the ability to
+stack actions one after another. This is done by using pipes. Borrowed
+from unix pipes, the concept is simple, each pipeline&rsquo;s output becomes the
+input of the following pipe.</p>
+<p>Because of the very simple syntax of go templates, the pipe is essential
+to being able to chain together function calls. One limitation of the
+pipes is that they only can work with a single value and that value
+becomes the last parameter of the next pipeline.</p>
+<p>A few simple examples should help convey how to use the pipe.</p>
+<p><strong>Example 1 :</strong></p>
+<pre><code>{{ if eq 1 1 }} Same {{ end }}
+</code></pre>
+<p>is the same as</p>
+<pre><code>{{ eq 1 1 | if }} Same {{ end }}
+</code></pre>
+<p>It does look odd to place the if at the end, but it does provide a good
+illustration of how to use the pipes.</p>
+<p><strong>Example 2 :</strong></p>
+<pre><code>{{ index .Params &quot;disqus_url&quot; | html }}
+</code></pre>
+<p>Access the page parameter called &ldquo;disqus_url&rdquo; and escape the HTML.</p>
+<p><strong>Example 3 :</strong></p>
+<pre><code>{{ if or (or (isset .Params &quot;title&quot;) (isset .Params &quot;caption&quot;)) (isset .Params &quot;attr&quot;)}}
+Stuff Here
+{{ end }}
+</code></pre>
+<p>Could be rewritten as</p>
+<pre><code>{{  isset .Params &quot;caption&quot; | or isset .Params &quot;title&quot; | or isset .Params &quot;attr&quot; | if }}
+Stuff Here 
+{{ end }}
+</code></pre>
+<h2 id="context-aka-the-dot">Context (aka. the dot)</h2>
+<p>The most easily overlooked concept to understand about go templates is that {{ . }}
+always refers to the current context. In the top level of your template this
+will be the data set made available to it. Inside of a iteration it will have
+the value of the current item. When inside of a loop the context has changed. .
+will no longer refer to the data available to the entire page. If you need to
+access this from within the loop you will likely want to set it to a variable
+instead of depending on the context.</p>
+<p><strong>Example:</strong></p>
+<pre><code>  {{ $title := .Site.Title }}
+  {{ range .Params.tags }}
+    &lt;li&gt; &lt;a href=&quot;{{ $baseurl }}/tags/{{ . | urlize }}&quot;&gt;{{ . }}&lt;/a&gt; - {{ $title }} &lt;/li&gt;
+  {{ end }}
+</code></pre>
+<p>Notice how once we have entered the loop the value of {{ . }} has changed. We
+have defined a variable outside of the loop so we have access to it from within
+the loop.</p>
+<h1 id="hugo-parameters">Hugo Parameters</h1>
+<p>Hugo provides the option of passing values to the template language
+through the site configuration (for sitewide values), or through the meta
+data of each specific piece of content. You can define any values of any
+type (supported by your front matter/config format) and use them however
+you want to inside of your templates.</p>
+<h2 id="using-content-page-parameters">Using Content (page) Parameters</h2>
+<p>In each piece of content you can provide variables to be used by the
+templates. This happens in the <a href="/content/front-matter">front matter</a>.</p>
+<p>An example of this is used in this documentation site. Most of the pages
+benefit from having the table of contents provided. Sometimes the TOC just
+doesn&rsquo;t make a lot of sense. We&rsquo;ve defined a variable in our front matter
+of some pages to turn off the TOC from being displayed.</p>
+<p>Here is the example front matter:</p>
+<div class="highlight">
+    <span class="highlight-type"></span>
+    <pre><code class="language- hljs" data-lang="">---
+title: &#34;Permalinks&#34;
+date: &#34;2013-11-18&#34;
+aliases:
+  - &#34;/doc/permalinks/&#34;
+groups: [&#34;extras&#34;]
+groups_weight: 30
+notoc: true
+---</code></pre>
+</div>
+
+<style>
+    .highlight-type {
+        content: "";
+        position: absolute;
+        opacity: 0.5;
+    }
+</style><p>Here is the corresponding code inside of the template:</p>
+<pre><code>  {{ if not .Params.notoc }}
+    &lt;div id=&quot;toc&quot; class=&quot;well col-md-4 col-sm-6&quot;&gt;
+    {{ .TableOfContents }}
+    &lt;/div&gt;
+  {{ end }}
+</code></pre>
+<h2 id="using-site-config-parameters">Using Site (config) Parameters</h2>
+<p>In your top-level configuration file (eg, <code>config.yaml</code>) you can define site
+parameters, which are values which will be available to you in chrome.</p>
+<p>For instance, you might declare:</p>
+<div class="highlight">
+    <span class="highlight-type">yaml</span>
+    <pre><code class="language-yaml hljs" data-lang="yaml">params:
+  CopyrightHTML: &#34;Copyright &amp;#xA9; 2013 John Doe. All Rights Reserved.&#34;
+  TwitterUser: &#34;spf13&#34;
+  SidebarRecentLimit: 5</code></pre>
+</div>
+
+<style>
+    .highlight-type {
+        content: "yaml";
+        position: absolute;
+        opacity: 0.5;
+    }
+</style><p>Within a footer layout, you might then declare a <code>&lt;footer&gt;</code> which is only
+provided if the <code>CopyrightHTML</code> parameter is provided, and if it is given,
+you would declare it to be HTML-safe, so that the HTML entity is not escaped
+again.  This would let you easily update just your top-level config file each
+January 1st, instead of hunting through your templates.</p>
+<div class="highlight">
+    <span class="highlight-type"></span>
+    <pre><code class="language- hljs" data-lang="">{{if .Site.Params.CopyrightHTML}}&lt;footer&gt;
+&lt;div class=&#34;text-center&#34;&gt;{{.Site.Params.CopyrightHTML | safeHtml}}&lt;/div&gt;
+&lt;/footer&gt;{{end}}</code></pre>
+</div>
+
+<style>
+    .highlight-type {
+        content: "";
+        position: absolute;
+        opacity: 0.5;
+    }
+</style><p>An alternative way of writing the &ldquo;if&rdquo; and then referencing the same value
+is to use &ldquo;with&rdquo; instead. With rebinds the context <code>.</code> within its scope,
+and skips the block if the variable is absent:</p>
+<div class="highlight">
+    <span class="highlight-type"></span>
+    <pre><code class="language- hljs" data-lang="">{{with .Site.Params.TwitterUser}}&lt;span class=&#34;twitter&#34;&gt;
+&lt;a href=&#34;https://twitter.com/{{.}}&#34; rel=&#34;author&#34;&gt;
+&lt;img src=&#34;/images/twitter.png&#34; width=&#34;48&#34; height=&#34;48&#34; title=&#34;Twitter: {{.}}&#34;
+ alt=&#34;Twitter&#34;&gt;&lt;/a&gt;
+&lt;/span&gt;{{end}}</code></pre>
+</div>
+
+<style>
+    .highlight-type {
+        content: "";
+        position: absolute;
+        opacity: 0.5;
+    }
+</style><p>Finally, if you want to pull &ldquo;magic constants&rdquo; out of your layouts, you can do
+so, such as in this example:</p>
+<div class="highlight">
+    <span class="highlight-type"></span>
+    <pre><code class="language- hljs" data-lang="">&lt;nav class=&#34;recent&#34;&gt;
+  &lt;h1&gt;Recent Posts&lt;/h1&gt;
+  &lt;ul&gt;{{range first .Site.Params.SidebarRecentLimit .Site.Recent}}
+    &lt;li&gt;&lt;a href=&#34;{{.RelPermalink}}&#34;&gt;{{.Title}}&lt;/a&gt;&lt;/li&gt;
+  {{end}}&lt;/ul&gt;
+&lt;/nav&gt;</code></pre>
+</div>
+
+<style>
+    .highlight-type {
+        content: "";
+        position: absolute;
+        opacity: 0.5;
+    }
+</style>
+</article>
+
+<div class="content_post_button">
+    
+    <button onclick="window.location.href = 'http:\/\/example.org\/posts\/hugoisforlovers\/'">
+        <span style="color: var(--primary-color);">上一篇</span><br />Getting Started with Hugo
+    </button>
+    
+    
+    <button onclick="window.location.href = 'http:\/\/example.org\/posts\/migrate-from-jekyll\/'">
+        <span style="color: var(--primary-color);">下一篇</span><br />Migrate to Hugo from Jekyll
+    </button>
+    
+</div>
+<a class="back_top" href="javascript:window.scrollTo(0,0);">
+    <svg t="1660722824713" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"
+        p-id="1359" width="64" height="64">
+        <path
+            d="M484 93.668c-231.038 0-418.333 187.296-418.333 418.335 0 231.038 187.296 418.327 418.333 418.327 231.036 0 418.333-187.289 418.333-418.327C902.334 280.964 715.036 93.668 484 93.668zM372.207 811.881c-0.412 8.174-4.906 12.669-13.493 13.493-6.545 0-11.863-0.614-15.946-1.841-4.504-1.639-6.545-4.906-6.133-9.813 1.629-4.906 4.695-7.148 9.199-6.746 6.948 1.639 10.215 0.613 9.813-3.066l0-96.902-12.266 0c-4.504-0.402-6.746-3.268-6.746-8.586 0.402-4.907 2.855-7.562 7.359-7.974l36.185 0c2.453 0 4.083 1.025 4.906 3.066 1.227-2.855 3.469-4.494 6.747-4.906l82.183 0c4.495 0.412 6.747 3.277 6.747 8.587-0.412 5.318-2.865 8.184-7.36 8.586l-36.798 0-2.453 11.652 23.919 0c10.215-0.402 14.92 3.891 14.106 12.88l0 63.17c-0.412 4.504-3.277 6.957-8.586 7.36-5.318-0.403-8.184-2.856-8.586-7.36l0-57.037c0-1.227-0.613-1.84-1.84-1.84l-43.545 0c-0.824 0.412-1.438 1.025-1.84 1.84l0 55.811c-0.412 4.906-3.277 7.57-8.586 7.974-5.318-0.403-8.184-3.067-8.586-7.974l0-61.943c0-8.586 3.68-12.88 11.04-12.88l14.719 0 3.066-11.652-25.759 0c-2.453 0-5.117-1.016-7.973-3.066-1.227 2.865-3.479 4.293-6.746 4.293l-6.747 0L372.207 811.881zM479.536 824.146c-3.277 4.907-7.571 5.722-12.879 2.454-2.865-1.227-7.571-3.891-14.106-7.974-6.133-3.277-10.838-5.52-14.106-6.746-6.133-2.855-8.586-6.334-7.359-10.426-1.227 2.051-3.68 4.504-7.36 7.359-0.412 0.412-0.824 0.824-1.227 1.227-9.41 7.762-20.239 13.896-32.505 18.399-5.73 1.629-9.813 0.201-12.266-4.294-1.639-4.906 0-8.586 4.906-11.039 18.802-7.762 30.253-15.534 34.345-23.306 4.494-7.359 6.746-21.054 6.746-41.091 0.403-5.722 3.067-8.788 7.973-9.2 5.309 0.412 8.174 3.479 8.586 9.2 0.814 20.852-1.639 36.798-7.36 47.837 4.083-4.906 9.401-5.107 15.946-0.613 4.907 2.865 11.442 6.546 19.626 11.04 3.68 2.453 6.334 4.092 7.973 4.906C481.375 814.736 482.391 818.828 479.536 824.146zM556.198 822.307l-41.704 0c-7.772-0.412-11.864-3.891-12.267-10.426l0-34.345c-0.412-8.989 3.68-13.282 12.267-12.88l42.931 0c7.763-0.402 11.653 3.891 11.653 12.88l0 34.958C569.48 819.029 565.188 822.307 556.198 822.307zM614.462 817.4c-6.545 0-11.652-0.824-15.332-2.453-4.092-2.051-5.318-5.309-3.68-9.813 1.629-4.906 5.107-6.747 10.426-5.52 11.04 2.453 15.735-1.841 14.106-12.88-0.412-8.174-5.933-18.399-16.56-30.665-3.68-3.68-4.293-9.2-1.84-16.56 4.494-13.895 7.561-24.532 9.199-31.892l-16.559 0c-1.227 0-2.051 0.824-2.453 2.453l0 110.395c-0.412 5.31-3.067 8.175-7.974 8.587-5.318-0.412-8.184-3.277-8.586-8.587l0-65.01c-1.227 1.639-2.865 2.453-4.906 2.453l-69.304 0c-4.504-0.402-6.957-3.268-7.359-8.586 0.402-5.31 2.855-8.175 7.359-8.587l14.72 0c-0.824-0.814-3.68-5.721-8.586-14.719-2.051-5.31-0.613-8.989 4.293-11.04l-7.36 0c-4.504-0.402-6.957-3.268-7.359-8.586 0.402-5.309 2.855-8.174 7.359-8.586l22.079 0c-0.824-1.227-1.227-2.453-1.227-3.681-1.227-4.082 0.613-7.359 5.52-9.813 5.721-2.041 9.401-1.016 11.04 3.066 1.227 3.68 2.654 7.158 4.293 10.427l20.239 0c4.494 0.412 6.947 3.277 7.359 8.586-0.412 5.318-2.865 8.184-7.359 8.586l-47.225 0c2.855 1.639 6.334 7.36 10.426 17.173 1.227 4.092 0.814 6.957-1.227 8.586l13.493 0c0.402-1.227 1.016-2.855 1.84-4.906 2.453-6.133 4.082-11.039 4.906-14.72 1.629-4.082 5.107-5.721 10.426-4.906 4.906 2.051 6.747 5.318 5.521 9.813-0.824 2.051-1.639 4.504-2.454 7.359-1.227 3.277-2.252 5.932-3.066 7.973l11.04 0c2.453 0 4.082 0.613 4.906 1.84l0-41.704c0-8.175 3.066-12.056 9.199-11.653l36.799 0c9.4 0 13.08 5.117 11.039 15.333 0 0.412-1.025 3.891-3.066 10.426-3.277 10.226-5.52 17.786-6.746 22.692-1.227 3.68-1.84 6.344-1.84 7.973 0.402 1.228 1.629 3.067 3.68 5.521 8.586 13.09 13.281 25.356 14.105 36.798C638.17 807.387 630.408 816.988 614.462 817.4zM646.896 466.315c-7.488 7.449-18.815 7.642-25.649 0.806-0.538-0.537-1.074-0.922-1.536-1.535L502.752 348.858l-0.192 280.106c0 9.139-8.601 16.549-19.198 16.549-10.598 0-18.738-7.41-18.738-16.549 0-0.729-0.115-1.306 0-2.034l-0.192-278.072L347.513 465.586c-0.422 0.652-0.959 0.999-1.536 1.535-6.834 6.874-18.162 6.681-25.649-0.806-7.488-7.488-8.025-19.122-1.152-25.995L467.12 292.03c2.112-3.263 5.26-5.913 9.369-7.333 2.074-0.807 4.262-1.152 6.528-1.113 0.23 0 0.383-0.116 0.614-0.116 0.153 0 0.307 0.078 0.46 0.078 2.304-0.078 4.57 0.307 6.72 1.152 3.994 1.421 7.142 4.07 9.254 7.219L648.048 440.32C654.92 447.155 654.383 458.827 646.896 466.315zM636.605 238.121 331.771 238.121c-9.407 0-17.049-7.564-17.049-16.857 0-9.292 7.642-16.856 17.049-16.856l304.835 0c9.445 0 17.048 7.564 17.048 16.856C653.653 230.557 646.013 238.121 636.605 238.121zM549.452 781.829 521.24 781.829c-1.227 0-2.051 0.824-2.453 2.453l0 19.013c0.402 1.639 1.227 2.453 2.453 2.453l28.212 0c1.629-0.402 2.453-1.227 2.453-2.453l0-19.013C551.905 782.653 551.081 781.829 549.452 781.829z"
+            p-id="1360" fill="#343232"></path>
+    </svg>
+</a>
+
+
+    <div class="center_main_contents_title">
+    <h2>目录</h2>
+</div>
+<div class="center_main_contents_main">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#introduction-to-go-templates">Introduction to Go Templates</a></li>
+    <li><a href="#basic-syntax">Basic Syntax</a></li>
+    <li><a href="#variables">Variables</a></li>
+    <li><a href="#functions">Functions</a></li>
+    <li><a href="#includes">Includes</a></li>
+    <li><a href="#logic">Logic</a>
+      <ul>
+        <li><a href="#iteration">Iteration</a></li>
+        <li><a href="#conditionals">Conditionals</a></li>
+      </ul>
+    </li>
+    <li><a href="#pipes">Pipes</a></li>
+    <li><a href="#context-aka-the-dot">Context (aka. the dot)</a></li>
+  </ul>
+
+  <ul>
+    <li><a href="#using-content-page-parameters">Using Content (page) Parameters</a></li>
+    <li><a href="#using-site-config-parameters">Using Site (config) Parameters</a></li>
+  </ul>
+</nav>
+</div>
+</div>
+
+</div>
+</body>
+
+
+
+
+
+</html>
